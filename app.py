@@ -392,6 +392,4 @@ def dashboard():
 
 if __name__ == '__main__':
     app.secret_key = '適当なランダム文字列'  # sessionを使うために必要
-    with app.app_context():
-        db.create_all()  # アプリケーションが起動する際にテーブルを作成
     app.run(debug=True)
