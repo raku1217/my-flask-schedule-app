@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ダッシュボード</title>
+</head>
+<body>
+    <h1>{{ user.username }}さんの履修登録を行います。</h1>
+    <p>学科: {{ user.course }}</p>
+    <a href="{{ url_for('index') }}">履修登録を開始</a>
+</body>
+</html>

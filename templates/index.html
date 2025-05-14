@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>履修時間割</title>
+    <style>
+        table {
+            border: 3px solid black;
+            border-collapse: collapse;
+            margin: 15px auto 0 auto;
+        }
+
+        td, th {
+            border: 3px solid black;
+            padding: 12px;
+            text-align: center;
+            word-wrap: break-word;
+            word-break: break-word;
+            position: relative;
+        }
+
+        select {
+            width: 170px; /* 幅を広くする */
+            font-size: 16px; /* フォントサイズを大きくする */
+            padding: 8px;  /* 上下に8px*/    
+        }       
+
+        #special-select {
+            width: 170px; /* 幅を広くする */
+            font-size: 16px; /* フォントサイズを大きくする */
+            padding: 8px; /* 余白を広くして押しやすく */
+        }
+
+        .subject-count {
+            font-size: 0.9em;
+            color: gray;
+            word-wrap: break-word;
+            word-break: break-word;
+            white-space: normal;
+            max-width: 120px;
+            margin: 0 auto;
+        }
+
+    .day-header {
+        font-size: 25px;
+        padding: 16px;
+        min-width: 100px;
+        position: relative; /* 必須：擬似要素で三角形を作成するため */
+    }
+
+</style>
+</head>
+<body>
+    <h1>履修時間割</h1>
+
+    <!-- コース選択 -->
+    <div>
+        <label for="course-select">学科を選択:</label>
+        <select id="course-select">
+            <option value="情報科学科" {% if user_course == "情報科学科" %}selected{% endif %}>情報科学科</option>
+            <option value="知能情報工学科" {% if user_course == "知能情報工学科" %}selected{% endif %}>知能情報工学科</option>
+        </select>
+        <button onclick="setCourse()">学科を決定</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>曜日＼時間</th>
+                {% for day in days %}
+                <th class="day-header">{{ day }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for period in range(7) %}
+            <tr>
+                <th>{{ period + 1 }}限</th>
+                {% for day in range(6) %}
+                <td>
+                    {% set key = (day, period) %}
+                    {% set offered = offered_subjects.get(key, []) %}
+                    <select onchange="registerSubject({{ day }}, {{ period }}, this, 1)">
+                        <option value="">前半の科目を選択</option>
+                        {% for sub in offered %}
+                            {% if sub in available_subjects %}
+                                <option value="{{ sub }}"
+                                    {% if session['user_registration'].get(day ~ '-' ~ period ~ '-1') == sub %} selected {% endif %}
+                                    style="color: {{ color_map.get(sub, 'black') }};"
+                                >{{ sub }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                <br><br><!--二行分のスペース-->
+                    <select onchange="registerSubject({{ day }}, {{ period }}, this, 2)">
+                        <option value="">後半の科目を選択</option>
+                        {% for sub in offered %}
+                            {% if sub in available_subjects %}
+                                <option value="{{ sub }}"
+                                    {% if session['user_registration'].get(day ~ '-' ~ period ~ '-2') == sub %} selected {% endif %}
+                                    style="color: {{ color_map.get(sub, 'black') }};"
+                                >{{ sub }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    
+                    <div id="cell-{{ day }}-{{ period }}">
+                        {% for subject, slot_counts in schedule_counts[day][period].items() %}
+                            {% for slot, count in slot_counts.items() %}
+                                {% if count > 0 %}
+                                    <div class="subject-count">{{ subject }}（{{ '1Q' if slot == 1 else '2Q' }}）：{{ count }}人</div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                    
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="margin-top: 40px;"></div>
+
+    <!-- 集中講義用の 2x1 表 -->
+    <table style="border: 3px solid black; border-collapse: collapse; margin: 0 auto;width: 1100px;">
+        <tr>
+            <td style="border: 3px solid black; padding: 10px; text-align: center; font-weight: bold;">
+                集中講義
+            </td>
+        </tr>
+        <tr>
+            <td style="border: 1px solid black; padding: 10px; text-align: center;">
+                <select id="special-select" onchange="registerSpecial()">
+                    <option value="">選択</option>
+                    {% for sub in special_subjects %}
+                        <option value="{{ sub }}"
+                            {% if session.get('special') == sub %} selected {% endif %}
+                        >{{ sub }}</option>
+                    {% endfor %}
+                </select>            
+                <div id="special-counts">
+                    {% for subject, count in special_counts[0][0].items() %}
+                        {% if count > 0 %}
+                            <div class="subject-count">{{ subject }}：{{ count }}人</div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <script>
+        // コース選択をサーバーに送信して更新する
+        function setCourse() {
+            const course = document.getElementById('course-select').value;
+            fetch('/set_course', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ course: course })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();  // コース選択後にページをリロードして科目を更新
+                }
+            });
+        }
+
+        // 科目の登録処理
+        function registerSubject(day, period, selectEl, slot) {
+            const subject = selectEl.value;
+            fetch('/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ day, period, subject, slot })
+                })
+                .then(response => response.json())
+                .then(data => {
+                if (data.success) {
+                    // 返された counts を元に表示を更新
+                    const cell = document.getElementById(`cell-${day}-${period}`);
+                    let html = '';
+                    for (const subject in data.counts) {
+                        const slots = data.counts[subject];
+                        for (const s in slots) {
+                            const label = parseInt(s) === 1 ? '（1Q）' : '（2Q）';
+                            html += `<div class="subject-count">${subject}${label}：${slots[s]}人</div>`;
+                        }
+                    }
+                    cell.innerHTML = html;
+                }
+            });
+        }
+
+        // 登録人数を更新する
+        function updateCell(day, period) {
+            fetch('/get_schedule')
+            .then(response => response.json())
+            .then(schedule => {
+                const cellData = schedule[day][period];
+                let html = '';
+                for (const subject in cellData) {
+                    if (cellData[subject] > 0) {
+                        html += `<div class="subject-count">${subject}：${cellData[subject]}人</div>`;
+                    }
+                }
+                document.getElementById(`cell-${day}-${period}`).innerHTML = html;
+            });
+        }
+
+        // 集中講義の科目選択をサーバーに送信する
+        function registerSpecial() {
+            const subject = document.getElementById('special-select').value;
+            fetch('/register_special', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ subject: subject })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 登録が成功した場合、人数を更新
+                    updateSpecialCounts();
+                } else {
+                    alert(data.message);  // エラーメッセージを表示
+                }
+            });
+        }
+
+        // 集中講義の登録人数を更新する
+        function updateSpecialCounts() {
+            fetch('/get_special')
+            .then(response => response.json())
+            .then(data => {
+                // 集中講義の登録人数を他の科目と同じ形式で表示
+                let html = '';
+                for (const subject in data) {
+                    if (data[subject] > 0) {
+                        html += `<div class="subject-count">${subject}：${data[subject]}人</div>`;
+                    }
+                }
+                document.getElementById('special-counts').innerHTML = html;
+            });
+        }
+
+     //枠の色を変える
+     function highlightEmptyColumns() {
+    const table = document.querySelector("table");
+    const theadRow = table.querySelector("thead tr");
+    const dayCount = 6; // 月〜土
+
+    for (let day = 0; day < dayCount; day++) {
+        let allEmptySlot1 = true;
+        let allEmptySlot2 = true;
+
+        for (let period = 0; period < 7; period++) {
+            const cell = table.rows[period + 1].cells[day + 1]; // +1: ヘッダー行, +1: 時間帯列をスキップ
+            const selects = cell.querySelectorAll("select");
+
+            if (selects[0] && selects[0].value !== "") {
+                allEmptySlot1 = false;
+            }
+            if (selects[1] && selects[1].value !== "") {
+                allEmptySlot2 = false;
+            }
+
+            // 各セル自体の背景（枠全体空なら塗る）
+            const isEmptyCell = (!selects[0] || selects[0].value === "") && (!selects[1] || selects[1].value === "");
+            cell.style.backgroundColor = isEmptyCell ? "#d0eaff" : "";
+        }
+
+        const headerCell = theadRow.cells[day + 1];
+        if (allEmptySlot1 && allEmptySlot2) {
+            headerCell.style.background = "#d0eaff"; // 両方空なら単色
+        } else if (allEmptySlot1) {
+            // 上三角（後半が埋まっていて前半が空）
+            headerCell.style.background = "linear-gradient(to bottom right, #d0eaff 50%, transparent 50%)";
+        } else if (allEmptySlot2) {
+            // 下三角（前半が埋まっていて後半が空）
+            headerCell.style.background = "linear-gradient(to top left, #d0eaff 50%, transparent 50%)";
+        } else {
+            headerCell.style.background = ""; // 登録ありなら色を戻す
+        }
+    }
+}
+
+window.onload = () => {
+    highlightEmptyColumns();
+
+    // すべてのセレクトボックスに変更イベントを追加しておく
+    document.querySelectorAll("select").forEach(select => {
+        select.addEventListener("change", highlightEmptyColumns);
+    });
+};
+
+    </script>
+</body>
+</html>
