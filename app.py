@@ -12,10 +12,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# データベースとテーブルを作成する
-with app.app_context():
-    db.create_all()
-
 def build_counts(day, period):
     counts = {}
     for subj, slots in schedule_counts[day][period].items():
@@ -322,6 +318,10 @@ class SpecialSchedule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     subject = db.Column(db.String(100), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+# データベースとテーブルを作成する
+with app.app_context():
+    db.create_all()
 
 # ホームページ
 @app.route('/')
