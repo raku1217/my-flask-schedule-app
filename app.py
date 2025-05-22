@@ -20,9 +20,10 @@ def build_counts(day, period):
     for sched in schedules:
         if sched.subject not in user_subjects:
             continue
+        slot_key = f"slot{sched.slot}"  # 1 → 'slot1'、2 → 'slot2'
         if sched.subject not in counts:
             counts[sched.subject] = {"slot1": 0, "slot2": 0}
-        counts[sched.subject][sched.slot] += 1
+        counts[sched.subject][slot_key] += 1
     return counts
 
 def rebuild_schedule_counts():
