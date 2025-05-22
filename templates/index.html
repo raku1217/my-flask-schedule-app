@@ -104,15 +104,20 @@
                         {% endfor %}
                     </select>
                     
+                    {% set key = (day, period) %}
+                    {% set subjects = selected.get(key, []) %}
+                    {% set count_data = counts.get(key, {}) %}
                     <div id="cell-{{ day }}-{{ period }}">
-                        {% for subject, slot_counts in schedule_counts[day][period].items() %}
-                            {% for slot, count in slot_counts.items() %}
-                                {% if count > 0 %}
-                                    <div class="subject-count">{{ subject }}（{{ '1Q' if slot == 1 else '2Q' }}）：{{ count }}人</div>
-                                {% endif %}
-                            {% endfor %}
+                        {% for subject, slot in subjects %}
+                            {% if subject in count_data %}
+                                <div class="subject-count">
+                                    {{ subject }}（{{ "1Q" if slot == "slot1" else "2Q" }}）：{{ count_data[subject][slot] }}人
+                                </div>
+                            {% endif %}
                         {% endfor %}
                     </div>
+
+
                     
                 </td>
                 {% endfor %}
@@ -187,7 +192,7 @@
                     for (const subject in data.counts) {
                         const slots = data.counts[subject];
                         for (const s in slots) {
-                            const label = parseInt(s) === 1 ? '（1Q）' : '（2Q）';
+                            const label = s === "slot1" ? '（1Q）' : '（2Q）';
                             html += `<div class="subject-count">${subject}${label}：${slots[s]}人</div>`;
                         }
                     }
