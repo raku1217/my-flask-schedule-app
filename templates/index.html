@@ -186,17 +186,20 @@
                 .then(response => response.json())
                 .then(data => {
                 if (data.success) {
-                    // 返された counts を元に表示を更新
-                    const cell = document.getElementById(`cell-${day}-${period}`);                    
-                    let html = '';
-                    const select1 = document.querySelector(`td:nth-child(${day + 2}) select:nth-of-type(1)`);
-                    const select2 = document.querySelector(`td:nth-child(${day + 2}) select:nth-of-type(2)`);
+                    // セルを取得
+                    const cell = document.getElementById(`cell-${day}-${period}`);
+                    // 親の td セルを取得
+                    const td = cell.closest('td');
+                    // td 内の select を取得
+                    const selects = td.querySelectorAll('select');
 
                     const selectedSubjects = [
-                        { subject: select1.value, slot: "slot1" },
-                        { subject: select2.value, slot: "slot2" },
+                        { subject: selects[0].value, slot: "slot1" },
+                        { subject: selects[1].value, slot: "slot2" },
                     ];
 
+                    //人数表示を更新
+                    let html = '';
                     for (const { subject, slot } of selectedSubjects) {
                         if (subject && data.counts[subject] && data.counts[subject][slot]) {
                             const label = slot === "slot1" ? '（1Q）' : '（2Q）';
