@@ -301,6 +301,18 @@ def timetable():
     # コースに基づいた科目リストを選択
     available_subjects = subjects.get(user_course, [])
 
+    selected = {}
+    counts = {}
+
+    for key, subject in session['user_registration'].items():
+        parts = key.split('-')
+        if len(parts) != 3:
+                continue
+        day, period, slot = map(int, parts)
+        slot_name = f"slot{slot}"
+        selected.setdefault((day, period), []).append((subject, slot_name))
+        counts[(day, period)] = build_counts(day, period)
+
     return render_template(
         'index.html',
         schedule_counts=schedule_counts,
@@ -311,7 +323,9 @@ def timetable():
         available_subjects=available_subjects,
         user_course=user_course,
         color_map=color_map,
-        special_subjects=special_subjects
+        special_subjects=special_subjects,
+        selected=selected,               # ✅追加
+        counts=counts,                    # ✅追加
     )
 
 @app.route('/set_course', methods=['POST'])
