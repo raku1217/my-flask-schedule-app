@@ -186,6 +186,7 @@
                 .then(response => response.json())
                 .then(data => {
                 if (data.success) {
+                    location.reload(); 
                     // セルを取得
                     const cell = document.getElementById(`cell-${day}-${period}`);
                     // 親の td セルを取得
