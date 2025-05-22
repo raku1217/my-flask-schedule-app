@@ -187,13 +187,20 @@
                 .then(data => {
                 if (data.success) {
                     // 返された counts を元に表示を更新
-                    const cell = document.getElementById(`cell-${day}-${period}`);
+                    const cell = document.getElementById(`cell-${day}-${period}`);                    
                     let html = '';
-                    for (const subject in data.counts) {
-                        const slots = data.counts[subject];
-                        for (const s in slots) {
-                            const label = s === "slot1" ? '（1Q）' : '（2Q）';
-                            html += `<div class="subject-count">${subject}${label}：${slots[s]}人</div>`;
+                    const select1 = document.querySelector(`td:nth-child(${day + 2}) select:nth-of-type(1)`);
+                    const select2 = document.querySelector(`td:nth-child(${day + 2}) select:nth-of-type(2)`);
+
+                    const selectedSubjects = [
+                        { subject: select1.value, slot: "slot1" },
+                        { subject: select2.value, slot: "slot2" },
+                    ];
+
+                    for (const { subject, slot } of selectedSubjects) {
+                        if (subject && data.counts[subject] && data.counts[subject][slot]) {
+                            const label = slot === "slot1" ? '（1Q）' : '（2Q）';
+                            html += `<div class="subject-count">${subject}${label}：${data.counts[subject][slot]}人</div>`;
                         }
                     }
                     cell.innerHTML = html;
