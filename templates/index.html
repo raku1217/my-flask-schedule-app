@@ -54,7 +54,7 @@
     <h1>履修時間割</h1>
     
     <div style="margin-top: 40px; text-align: center;">
-        <h2>人気科目ランキング</h2>
+        <h2>登録者の多い科目</h2>
         <ol id="popular-list" style="display: inline-block; text-align: left;">
             {% for subject, count in popular_subjects %}
                 <li class="ranking-item" {% if loop.index > 5 %} style="display: none;" {% endif %}>
