@@ -63,6 +63,7 @@
         <button onclick="setCourse()">学科を決定</button>
     </div>
 
+    
     <div style="margin-top: 40px; text-align: center;">
         <h2>人気科目ランキング</h2>
         <ol id="popular-list" style="display: inline-block; text-align: left;">
@@ -73,7 +74,7 @@
             {% endfor %}
         </ol>
         {% if popular_subjects|length > 5 %}
-            <button id="show-more-button" onclick="showMore()">もっと見る</button>
+            <button id="toggle-button" onclick="toggleRanking()">もっと見る</button>
         {% endif %}
     </div>
     
@@ -86,6 +87,21 @@
             });
             document.getElementById('show-more-button').style.display = 'none';
         }
+        let expanded = false;
+
+        function toggleRanking() {
+            const items = document.querySelectorAll('.ranking-item');
+            const button = document.getElementById('toggle-button');
+
+            items.forEach((item, index) => {
+                if (index >= 5) {
+                    item.style.display = expanded ? 'none' : 'list-item';
+                }
+            });
+
+            expanded = !expanded;
+            button.textContent = expanded ? '折りたたむ' : 'もっと見る';
+    }
     </script>
     
     <table>
