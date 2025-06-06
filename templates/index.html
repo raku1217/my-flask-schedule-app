@@ -52,17 +52,6 @@
 </head>
 <body>
     <h1>履修時間割</h1>
-
-    <!-- コース選択 -->
-    <div>
-        <label for="course-select">学科を選択:</label>
-        <select id="course-select">
-            <option value="情報科学科" {% if user_course == "情報科学科" %}selected{% endif %}>情報科学科</option>
-            <option value="知能情報工学科" {% if user_course == "知能情報工学科" %}selected{% endif %}>知能情報工学科</option>
-        </select>
-        <button onclick="setCourse()">学科を決定</button>
-    </div>
-
     
     <div style="margin-top: 40px; text-align: center;">
         <h2>人気科目ランキング</h2>
@@ -104,6 +93,16 @@
     }
     </script>
     
+     <!-- コース選択 -->
+     <div>
+        <label for="course-select">学科を選択:</label>
+        <select id="course-select">
+            <option value="情報科学科" {% if user_course == "情報科学科" %}selected{% endif %}>情報科学科</option>
+            <option value="知能情報工学科" {% if user_course == "知能情報工学科" %}selected{% endif %}>知能情報工学科</option>
+        </select>
+        <button onclick="setCourse()">学科を決定</button>
+    </div>
+
     <table>
         <thead>
             <tr>
