@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from collections import defaultdict
+from sqlalchemy import func
 import json
 import os
 
@@ -314,6 +315,13 @@ def timetable():
         selected.setdefault((day, period), []).append((subject, slot_name))
         counts[(day, period)] = build_counts(day, period)
 
+    popular_subjects = db.session.query(
+        Schedule.subject,
+        func.count().label("count")
+    ).group_by(Schedule.subject)\
+    .order_by(func.count().desc())\
+    .limit(15).all()
+
     return render_template(
         'index.html',
         schedule_counts=schedule_counts,
@@ -325,8 +333,9 @@ def timetable():
         user_course=user_course,
         color_map=color_map,
         special_subjects=special_subjects,
-        selected=selected,               # ✅追加
-        counts=counts,                    # ✅追加
+        selected=selected,               
+        counts=counts,                   
+        popular_subjects=popular_subjects 
     )
 
 @app.route('/set_course', methods=['POST'])

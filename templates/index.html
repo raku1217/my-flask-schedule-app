@@ -63,6 +63,31 @@
         <button onclick="setCourse()">学科を決定</button>
     </div>
 
+    <div style="margin-top: 40px; text-align: center;">
+        <h2>人気科目ランキング</h2>
+        <ol id="popular-list" style="display: inline-block; text-align: left;">
+            {% for subject, count in popular_subjects %}
+                <li class="ranking-item" {% if loop.index > 5 %} style="display: none;" {% endif %}>
+                    {{ loop.index }}位：{{ subject }}（{{ count }}人）
+                </li>
+            {% endfor %}
+        </ol>
+        {% if popular_subjects|length > 5 %}
+            <button id="show-more-button" onclick="showMore()">もっと見る</button>
+        {% endif %}
+    </div>
+    
+    <script>
+        function showMore() {
+            document.querySelectorAll('.ranking-item').forEach((item, index) => {
+                if (index >= 5) {
+                    item.style.display = 'list-item';
+                }
+            });
+            document.getElementById('show-more-button').style.display = 'none';
+        }
+    </script>
+    
     <table>
         <thead>
             <tr>
