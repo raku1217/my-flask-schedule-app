@@ -56,72 +56,6 @@ subjects = {
                 "オブジェクト指向プログラミング(2)",
                 "ベクトル解析学(情科)",
                 "コンピュータシステム",
-                "ドイツ語(1a)",
-                "ドイツ語(1b)",
-                "中国語(1a)",
-                "Critical Listening(2a)",
-                "中国語(1b)",
-                "Critical Listening(2b)",
-                "Critical Reading(3a)",
-                "Test Taking Skills(2a)",
-                "Critical Reading(3b)", 
-                "Test Taking Skills(2b)",
-                "アラビア語(1a)",
-                "Literature in English(1a)",
-                "アラビア語(1b)",
-                "Literature in English(1b)",
-                "フランス語(1a)",
-                "Critical Listening(1a)",
-                "Critical Listening(3a)",
-                "フランス語(1b)",
-                "Critical Listening(1b)",
-                "Critical Listening(3b)",
-                "Academic English(3a)",
-                "Basic English Training(a)",
-                "Literature in English(2a)",
-                "Test Taking Skills(1a)",
-                "Test Taking Skills(3a)",
-                "Academic English(3b)",
-                "Basic English Training(b)",
-                "Literature in English(2b)",
-                "Test Taking Skills(1b)",
-                "Test Taking Skills(3b)",
-                "再・Reading Writing(1a)",
-                "再・Reading Writing(1b)",
-                "Academic English(1a)",
-                "Critical Reading(1a)",
-                "Academic English(1b)",
-                "Critical Reading(1b)",
-                "Language Sciences(1a)",
-                "Language Sciences(1b)",
-                "日本語表現(a)",
-                "日本語表現(b)",
-                "Communication Strategies(2a)",
-                "Grammer(1a)",
-                "Communication Strategies(2b)",
-                "Grammer(1b)",
-                "Critical Reading(2a)",
-                "Grammer(2a)",
-                "外国語特別講義(2a)",
-                "Critical Reading(2b)",
-                "Grammer(2b)",
-                "外国語特別講義(2b)",
-                "Academic English(2a)",
-                "Global Culture(1a)",
-                "Language Sciences(2a)",
-                "Academic English(2b)",
-                "Global Culture(1b)",
-                "Language Sciences(2b)",
-                "再・Reading and Writing(1a)",
-                "再・Reading and Writing(1b)",
-                "Communication Strategies(1a)",
-                "Global Society(1a)",
-                "Communication Strategies(1b)",
-                "Global Society(1b)",
-                "イタリア語(1a)",
-                "Global Society(2a)",
-                "イタリア語(1b)",
-                "Global Society(2b)"
                 ],
 
     "知能情報工学科":[
@@ -141,6 +75,9 @@ subjects = {
             "ベクトル解析学(知能)",
             "データサイエンス・コンピューティング応用",
             "知能情報数学基礎",
+        ],   
+
+    "外国語":[
             "ドイツ語(1a)",
             "ドイツ語(1b)",
             "中国語(1a)",
@@ -206,8 +143,8 @@ subjects = {
             "イタリア語(1a)",
             "Global Society(2a)",
             "イタリア語(1b)",
-            "Global Society(2b)"
-          ],
+            "Global Society(2b)",
+    ]
 
 }
 
@@ -301,7 +238,9 @@ def timetable():
     user_course = session.get('user_course', None)
 
     # コースに基づいた科目リストを選択
-    available_subjects = subjects.get(user_course, [])
+    available_subjects = []
+    available_subjects.extend(subjects.get(user_course, []))
+    available_subjects.extend(subjects.get("外国語", []))
 
     selected = {}
     counts = {}
