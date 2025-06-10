@@ -56,6 +56,7 @@ subjects = {
                 "オブジェクト指向プログラミング(2)",
                 "ベクトル解析学(情科)",
                 "コンピュータシステム",
+                "技術者倫理"
                 ],
 
     "知能情報工学科":[
@@ -193,7 +194,7 @@ offered_subjects = {
     (4, 1): ["デジタル信号処理(情科)","基礎論理回路","韓国語(1a)","ドイツ語(1a)","韓国語(1b)","ドイツ語(1b)"],
     (4, 2): ["再・企業マネジメント","知能情報数学基礎","データベースシステム","イタリア語(1a)","ドイツ語(1a)","Communication Strategies(1a)","Global Society(1a)","Grammer(2a)","イタリア語(1b)","ドイツ語(1b)","Communication Strategies(1b)","Global Society(1b)","Grammer(2b)"],
     (4, 3): ["再・企業マネジメント","知能情報数学基礎","イタリア語(1a)","Global Society(2a)","Test Taking Skills(2a)","イタリア語(1b)","Global Society(2b)","Test Taking Skills(2b)",],
-    (4, 4): [],
+    (4, 4): ["技術者倫理"],
     (4, 5): [],
     (4, 6): [],
     #土曜日
