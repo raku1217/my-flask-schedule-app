@@ -297,6 +297,7 @@ def register():
 
     existing = Schedule.query.filter_by(user_id=user_id, day=day, period=period, slot=slot).first()
 
+    #科目の登録を解除
     if not subject:
         if existing:
             prev_subject = existing.subject
@@ -484,7 +485,7 @@ def login():
             session['user_course'] = user.course 
             return redirect(url_for('dashboard'))
         else:
-            return "ログイン失敗", 401
+            return "ユーザー名または、パスワードが間違っています。", 401
     return render_template('login.html')
 
 # ダッシュボード
